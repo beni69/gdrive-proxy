@@ -16,7 +16,7 @@ const dl = (dl: boolean) => async (req: Request, res: Response) => {
         fileId,
         fields: "name,mimeType,permissions",
     });
-    console.log(data);
+    !PROD && console.log(data);
 
     if (status !== 200) return void res.status(status);
 
@@ -42,6 +42,23 @@ const dl = (dl: boolean) => async (req: Request, res: Response) => {
 };
 
 app.get("/", (req, res) => res.send("Hello World"));
+
+app.get("/parse/*", (req, res) => {
+    const url = req.url.replace("/parse/", "");
+
+    // const r = /https:\/\/drive\.google\.com\/file\/d\/(.+?)\/?/;
+    const r = new RegExp("^https://drive.google.com/file/d/(.*)/");
+
+    !PROD && console.log(r.exec(url));
+
+    const match = r.exec(url)?.[1];
+
+    if (!match) return void res.status(400).send("Invalid URL");
+
+    res.send(
+        `<a href="/view/${match}">View</a><br><a href="/dl/${match}">Download</a>`
+    );
+});
 
 app.get("/view/:fileId", dl(false));
 app.get("/dl/:fileId", dl(true));
