@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { downloadFile, getFile, getOAuthClient } from "./gdrive";
+import { downloadFile, getFile, getOAuthClient } from "./gdrive.js";
 
 const PROD = process.env.NODE_ENV === "production",
     PORT = process.env.PORT || 8000;

@@ -1,5 +1,4 @@
 import { readFile, writeFile } from "fs/promises";
-import isStream from "is-stream";
 import { OAuth2Client } from "google-auth-library";
 import { drive_v3, google } from "googleapis";
 import readline from "readline";

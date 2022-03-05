@@ -2,6 +2,7 @@
     "name": "gdrive-proxy",
     "version": "0.1.0",
     "main": "dist/index.js",
+    "type": "module",
     "author": "beni69 <beni@karesz.xyz> (https://github.com/beni69)",
     "license": "GPL-3.0",
     "scripts": {
