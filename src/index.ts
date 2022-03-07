@@ -17,7 +17,7 @@ const dl = (dl: boolean) => async (req: Request, res: Response) => {
 
     const f = await getFile(auth, {
         fileId,
-        fields: "name,mimeType,permissions",
+        fields: "name,mimeType,size,permissions",
     }).then(
         ok => ({ ok, err: null }),
         err => ({ ok: null, err })
@@ -35,6 +35,7 @@ const dl = (dl: boolean) => async (req: Request, res: Response) => {
         data.permissions?.some(p => p.type === "anyone" || p.type === "domain")
     ) {
         res.header("Content-Type", data.mimeType!);
+        res.header("Content-Length", data.size!);
 
         // tell the browser to download the file
         dl &&
