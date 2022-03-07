@@ -1,5 +1,7 @@
 import express, { Request, Response } from "express";
+import morgan from "morgan";
 import { downloadFile, getFile, getOAuthClient } from "./gdrive.js";
+import log from "./log.js";
 
 const PROD = process.env.NODE_ENV === "production",
     PORT = process.env.PORT || 8000;
@@ -8,15 +10,23 @@ const PROD = process.env.NODE_ENV === "production",
 const auth = await getOAuthClient(!PROD);
 
 const app = express();
+app.use(morgan(log));
 
 const dl = (dl: boolean) => async (req: Request, res: Response) => {
     const { fileId } = req.params;
 
-    const { data, status } = await getFile(auth, {
+    const f = await getFile(auth, {
         fileId,
         fields: "name,mimeType,permissions",
-    });
-    !PROD && console.log(data);
+    }).then(
+        ok => ({ ok, err: null }),
+        err => ({ ok: null, err })
+    );
+
+    if (!f.ok) return void res.status(404).send("not found");
+
+    const { status, data } = f.ok;
+    !PROD && console.log(status, data);
 
     if (status !== 200) return void res.status(status);
 
@@ -46,7 +56,6 @@ app.get("/", (req, res) => res.send("Hello World"));
 app.get("/parse/*", (req, res) => {
     const url = req.url.replace("/parse/", "");
 
-    // const r = /https:\/\/drive\.google\.com\/file\/d\/(.+?)\/?/;
     const r = new RegExp("^https://drive.google.com/file/d/(.*)/");
 
     !PROD && console.log(r.exec(url));

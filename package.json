@@ -12,11 +12,14 @@
         "dev": "nodemon -w src -x tsm src/index.ts"
     },
     "dependencies": {
+        "chalk": "^5.0.0",
         "express": "^4.17.3",
-        "googleapis": "^95.0.0"
+        "googleapis": "^95.0.0",
+        "morgan": "^1.10.0"
     },
     "devDependencies": {
         "@types/express": "^4.17.13",
+        "@types/morgan": "^1.9.3",
         "@types/node": "^17.0.21",
         "nodemon": "^2.0.15",
         "rimraf": "^3.0.2",
