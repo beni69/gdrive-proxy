@@ -7,4 +7,7 @@ services:
       - '8000:8000'
     environment:
       - NODE_ENV=production
+    volumes:
+      - './credentials.json:/app/credentials.json'
+      - './token.json:/app/token.json'
     restart: unless-stopped
