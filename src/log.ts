@@ -1,6 +1,7 @@
 import c from "ansi-colors";
 import type { Request, Response } from "express";
 import type morgan from "morgan";
+
 export default function log(
     tokens: morgan.TokenIndexer<Request, Response>,
     req: Request,
@@ -18,12 +19,12 @@ export default function log(
     ].join(c.grey(" - "));
 
     return msg;
+}
 
-    function status(code?: string) {
-        if (!code) return "";
+function status(code?: string) {
+    if (!code) return "";
 
-        const colors = [c.reset, c.green, c.cyan, c.yellow, c.red];
+    const colors = [c.reset, c.green, c.cyan, c.yellow, c.red];
 
-        return colors[Math.floor(parseInt(code) / 100) - 1](code);
-    }
+    return colors[Math.floor(parseInt(code) / 100) - 1](code);
 }

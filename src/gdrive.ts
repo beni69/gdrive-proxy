@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { OAuth2Client } from "google-auth-library";
 import { drive_v3, google } from "googleapis";
@@ -11,9 +12,7 @@ const SCOPES = ["https://www.googleapis.com/auth/drive.readonly"];
 const TOKEN_PATH = "token.json",
     CREDENTIALS_PATH = "credentials.json";
 
-export const getOAuthClient = async (
-    interactive = true
-): Promise<OAuth2Client> => {
+export const getOAuthClient = async (): Promise<OAuth2Client> => {
     const credentials = JSON.parse(await readFile(CREDENTIALS_PATH, "utf-8"));
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
@@ -23,18 +22,13 @@ export const getOAuthClient = async (
     );
 
     // Check if we have previously stored a token.
-    try {
-        const token = JSON.parse(await readFile(TOKEN_PATH, "utf-8"));
-        oAuth2Client.setCredentials(token);
-        return oAuth2Client;
-    } catch (e) {
-        if (interactive) return getAccessToken(oAuth2Client);
-        throw null;
-    }
+    const token = JSON.parse(await readFile(TOKEN_PATH, "utf-8"));
+    oAuth2Client.setCredentials(token);
+    return oAuth2Client;
 };
 
-export const login = async () => {
-    const credentials = JSON.parse(await readFile(CREDENTIALS_PATH, "utf-8"));
+export const login = () => {
+    const credentials = JSON.parse(readFileSync(CREDENTIALS_PATH, "utf-8"));
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
         client_id,
