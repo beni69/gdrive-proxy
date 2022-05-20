@@ -2,16 +2,17 @@ FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY package*.json .
-COPY yarn.lock .
+COPY package.json .
+COPY pnpm-lock.yaml .
+COPY .npmrc .
 
-RUN yarn install --frozen-lockfile
+RUN pnpm install
 
 COPY . .
 
-RUN yarn build
+RUN pnpm build
 
 EXPOSE 8000
 ENV NODE_ENV=production
 
-CMD ["yarn", "start"]
+CMD ["pnpm", "start"]
