@@ -14,9 +14,7 @@ const TOKEN_PATH = "token.json",
 export const getOAuthClient = async (
     interactive = true
 ): Promise<OAuth2Client> => {
-    const credentials = JSON.parse(
-        (await readFile(CREDENTIALS_PATH)).toString()
-    );
+    const credentials = JSON.parse(await readFile(CREDENTIALS_PATH, "utf-8"));
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
         client_id,
@@ -26,12 +24,25 @@ export const getOAuthClient = async (
 
     // Check if we have previously stored a token.
     try {
-        const token = JSON.parse((await readFile(TOKEN_PATH)).toString());
+        const token = JSON.parse(await readFile(TOKEN_PATH, "utf-8"));
         oAuth2Client.setCredentials(token);
         return oAuth2Client;
     } catch (e) {
-        return getAccessToken(oAuth2Client);
+        if (interactive) return getAccessToken(oAuth2Client);
+        throw null;
     }
+};
+
+export const login = async () => {
+    const credentials = JSON.parse(await readFile(CREDENTIALS_PATH, "utf-8"));
+    const { client_secret, client_id, redirect_uris } = credentials.installed;
+    const oAuth2Client = new google.auth.OAuth2(
+        client_id,
+        client_secret,
+        redirect_uris[0]
+    );
+
+    return getAccessToken(oAuth2Client);
 };
 
 const getAccessToken = (oAuth2Client: OAuth2Client) =>
@@ -40,22 +51,27 @@ const getAccessToken = (oAuth2Client: OAuth2Client) =>
             access_type: "offline",
             scope: SCOPES,
         });
+
         console.log("Authorize this app by visiting this url:", authUrl);
+
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
+
         rl.question("Enter the code from that page here: ", code => {
             rl.close();
-            oAuth2Client.getToken(code, async (err, token) => {
-                if (err) throw `Error retrieving access token: ${err}`;
-                oAuth2Client.setCredentials(token!);
+            oAuth2Client.getToken(code, (err, token) => {
+                if (err || !token)
+                    return void rej(`Error retrieving access token: ${err}`);
+
+                oAuth2Client.setCredentials(token);
                 writeFile(TOKEN_PATH, JSON.stringify(token))
-                    .then(_ => console.log("Token stored to", TOKEN_PATH))
-                    .catch(err => {
-                        throw err;
-                    });
-                res(oAuth2Client);
+                    .then(_ => {
+                        console.log("Token stored to", TOKEN_PATH);
+                        res(oAuth2Client);
+                    })
+                    .catch(rej);
             });
         });
     });

@@ -1,7 +1,20 @@
+import arg from "arg";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
-import { downloadFile, getFile, getOAuthClient } from "./gdrive.js";
+import { downloadFile, getFile, getOAuthClient, login } from "./gdrive.js";
 import log from "./log.js";
+
+const args = arg({
+    "--login": Boolean,
+});
+
+if (args["--login"]) {
+    console.log("bye");
+
+    login(); // TODO
+
+    process.exit(0);
+}
 
 const PROD = process.env.NODE_ENV === "production",
     PORT = process.env.PORT || 8000;
@@ -22,6 +35,8 @@ const dl = (dl: boolean) => async (req: Request, res: Response) => {
         ok => ({ ok, err: null }),
         err => ({ ok: null, err })
     );
+
+    console.log(f);
 
     if (!f.ok) return void res.status(404).send("not found");
 

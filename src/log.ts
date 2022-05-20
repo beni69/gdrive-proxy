@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import c from "ansi-colors";
 import type { Request, Response } from "express";
 import type morgan from "morgan";
 export default function log(
@@ -9,26 +9,20 @@ export default function log(
     const code = tokens.status(req, res);
 
     let msg = [
-        chalk.bold.inverse(tokens.method(req, res)),
+        c.bold.inverse(tokens.method(req, res) || ""),
         status(code),
-        chalk.bold(tokens.url(req, res)),
-        chalk.magenta(tokens["response-time"](req, res) + " ms"),
-        chalk.blue(req.ip),
+        c.bold(tokens.url(req, res) || ""),
+        c.magenta(tokens["response-time"](req, res) + " ms"),
+        c.blue(req.ip),
         tokens["user-agent"](req, res),
-    ].join(chalk.grey` - `);
+    ].join(c.grey(" - "));
 
     return msg;
 
     function status(code?: string) {
         if (!code) return "";
 
-        const colors = [
-            chalk.reset,
-            chalk.green,
-            chalk.cyan,
-            chalk.yellow,
-            chalk.red,
-        ];
+        const colors = [c.reset, c.green, c.cyan, c.yellow, c.red];
 
         return colors[Math.floor(parseInt(code) / 100) - 1](code);
     }
