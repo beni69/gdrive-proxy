@@ -1,13 +1,12 @@
-version: '3.5'
+version: '2'
 
 services:
-  app:
-    image: vbeni/gdrive-proxy
+  openresty:
+    # image: docker.io/bitnami/openresty:1.21
+    image: docker.io/openresty/openresty
     ports:
-      - '8000:8000'
-    environment:
-      - NODE_ENV=production
+      - '8080:8080'
     volumes:
-      - './credentials.json:/app/credentials.json'
-      - './token.json:/app/token.json'
-    restart: unless-stopped
+      # - ./conf/nginx.conf:/opt/bitnami/openresty/nginx/conf/server_blocks/gdrive.conf
+      - ./conf/nginx.conf:/etc/nginx/conf.d/gdrive.conf
+      - ./token.txt:/token.txt

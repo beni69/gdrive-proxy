@@ -1,8 +1,0 @@
-.git*
-.vscode
-
-node_modules/
-dist
-
-credentials.json
-token.json
