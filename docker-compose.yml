@@ -2,11 +2,9 @@ version: '2'
 
 services:
   openresty:
-    # image: docker.io/bitnami/openresty:1.21
-    image: docker.io/openresty/openresty
+    build: .
     ports:
       - '8080:8080'
     volumes:
-      # - ./conf/nginx.conf:/opt/bitnami/openresty/nginx/conf/server_blocks/gdrive.conf
-      - ./conf/nginx.conf:/etc/nginx/conf.d/gdrive.conf
       - ./token.txt:/token.txt
+      - ./credentials.json:/app/credentials.json

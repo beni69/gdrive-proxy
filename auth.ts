@@ -51,7 +51,7 @@ const getAccessToken = (client: OAuth2Client) =>
             } catch (e) {
                 rej(e);
             }
-        }).listen(8080, () => {
+        }).listen(process.env.AUTH_PORT ?? 8080, () => {
             const authUrl = client.generateAuthUrl({
                 access_type: "offline",
                 scope: SCOPES,
