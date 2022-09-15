@@ -1,13 +1,10 @@
-version: '3.5'
+version: '2'
 
 services:
-  app:
-    image: vbeni/gdrive-proxy
+  openresty:
+    build: .
     ports:
-      - '8000:8000'
-    environment:
-      - NODE_ENV=production
+      - '8080:8080'
     volumes:
-      - './credentials.json:/app/credentials.json'
-      - './token.json:/app/token.json'
-    restart: unless-stopped
+      # - ./token.txt:/app/token.txt
+      - ./credentials.json:/app/credentials.json
