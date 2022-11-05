@@ -20,4 +20,6 @@ RUN opm get jprjr/lua-resty-exec && \
 WORKDIR /app
 COPY --from=pkg /src/auth-manager .
 COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
-CMD ["sh", "-c", "sockexec /tmp/exec.sock & (sleep 1 && chown www-data:www-data /tmp/exec.sock) & openresty -g 'daemon off;user www-data www-data;'"]
+
+COPY entry.sh .
+CMD ["/app/entry.sh"]

@@ -13,14 +13,12 @@ const TOKEN_PREFIX = "token",
     TOKEN_PATH = TOKEN_PREFIX + ".json",
     CREDENTIALS_PATH = "credentials.json";
 
-const code = process.argv[2];
-
 const login = async () => {
     const { client_secret, client_id, redirect_uris } = JSON.parse(
         await readFile(CREDENTIALS_PATH, "utf-8")
     ).web;
-    // console.debug(client_secret, client_id, redirect_uris)
-    const client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
+    const client = new OAuth2Client(client_id, client_secret, redirect_uris[1]);
+    const code = process.argv[3];
 
     try {
         client.setCredentials(JSON.parse(await readFile(TOKEN_PATH, "utf-8")));
@@ -29,9 +27,12 @@ const login = async () => {
             await client.refreshAccessToken();
             await saveToken(client.credentials);
         }
+        console.log("existing token is valid");
         return client;
     } catch {
-        return await (code ? setCode(client, code) : getAccessToken(client));
+        await (code ? setCode(client, code) : getAccessToken(client));
+
+        console.log("login successful");
     }
 };
 
@@ -51,7 +52,7 @@ const getAccessToken = (client: OAuth2Client) =>
             } catch (e) {
                 rej(e);
             }
-        }).listen(process.env.AUTH_PORT ?? 8080, () => {
+        }).listen(process.env.AUTH_PORT ?? 8081, () => {
             const authUrl = client.generateAuthUrl({
                 access_type: "offline",
                 scope: SCOPES,
@@ -80,5 +81,40 @@ const saveToken = (token: Credentials) =>
         ),
     ]);
 
-// getAccessToken().then(console.log).catch(console.error)
-login().then(console.log).catch(console.error);
+const refresh = async () => {
+    const { client_secret, client_id } = JSON.parse(
+        process.env.CREDENTIALS || (await readFile(CREDENTIALS_PATH, "utf-8"))
+    ).web;
+    const client = new OAuth2Client(client_id, client_secret);
+
+    try {
+        client.setCredentials(
+            JSON.parse(
+                process.env.TOKEN || (await readFile(TOKEN_PATH, "utf-8"))
+            )
+        );
+        if (client.credentials.expiry_date! < Date.now()) {
+            console.log("refreshing token");
+            await client.refreshAccessToken();
+        }
+        await saveToken(client.credentials);
+    } catch (e) {
+        console.error(e);
+    }
+};
+
+switch (process.argv[2]) {
+    case "login":
+        login().catch(console.error);
+        break;
+
+    case "refresh":
+        refresh().catch(console.error);
+        setInterval(() => refresh().catch(console.error), 1000 * 60 * 60);
+        console.log("refreshing token every hour");
+        break;
+
+    default:
+        console.error("unknown command");
+        process.exit(1);
+}
