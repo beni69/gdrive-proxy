@@ -17,7 +17,7 @@ const login = async () => {
     const { client_secret, client_id, redirect_uris } = JSON.parse(
         await readFile(CREDENTIALS_PATH, "utf-8")
     ).web;
-    const client = new OAuth2Client(client_id, client_secret, redirect_uris[1]);
+    const client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
     const code = process.argv[3];
 
     try {
