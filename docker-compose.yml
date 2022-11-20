@@ -1,10 +1,10 @@
-version: '2'
+version: "2"
 
 services:
   drive:
     build: .
     ports:
-      - '8080:8080'
+      - "8080:8080"
     volumes:
-      # - ./token.json:/app/token.json
-      - ./credentials.json:/app/credentials.json
+      - ./token.json:/app/token.json
+      - ./credentials.json:/credentials.json:ro
